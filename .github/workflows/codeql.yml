@@ -50,5 +50,5 @@ jobs:
       uses: github/codeql-action/analyze@v3
       env:
         LGTM_INDEX_XML_MODE: all
-        LGTM_INDEX_FILETYPES: ".cds:JSON"
+        LGTM_INDEX_FILETYPES: ".cds:JSON\n.json:JSON"
         LGTM_INDEX_FILTERS: include:gen/*.json
