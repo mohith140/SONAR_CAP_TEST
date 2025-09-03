@@ -6,14 +6,15 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-       "@sap/cds": "^8",
+    "@sap/cds": "^9.3.1",
+    "@sap/eslint-plugin-cds": "^4.1.0",
     "@sap/hana-client": "^2.25.22",
     "express": "^4",
     "nodemailer": "^6.7.8",
     "passport": "^0.6.0",
+    "pg": "^8.11.1",
     "sap-cf-axios": "^1.0.2",
     "sap-cf-mailer": "0.0.5",
-    "pg": "^8.11.1",
     "sap-cf-socks": "github:piejanssens/sap-cf-socks",
     "socks": "^2.7.0"
   },
@@ -62,6 +63,7 @@
     }
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+     "lint": "eslint . --ext .js,.ts"
   }
 }
