@@ -1,0 +1,9 @@
+VIEW CatalogService_Books AS SELECT
+  Bookstore_0.ID,
+  Bookstore_0.Title,
+  Bookstore_0.Author,
+  Bookstore_0.Genre,
+  Bookstore_0.Price,
+  Bookstore_0.InStock,
+  Bookstore_0.Date1
+FROM DATA_Bookstore AS Bookstore_0

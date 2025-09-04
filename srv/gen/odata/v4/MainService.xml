@@ -21,7 +21,7 @@
       </Annotation>
       <EntityContainer Name="EntityContainer">
         <EntitySet Name="Users" EntityType="MainService.Users"/>
-        <EntitySet Name="AdminSettings" EntityType="MainService.AdminSettings"/>
+        <EntitySet Name="Bookstore" EntityType="MainService.Bookstore"/>
         <EntitySet Name="AuditLogs" EntityType="MainService.AuditLogs"/>
         <ActionImport Name="exposeToken" Action="MainService.exposeToken"/>
       </EntityContainer>
@@ -34,7 +34,7 @@
         <Property Name="email" Type="Edm.String" MaxLength="200"/>
         <Property Name="password" Type="Edm.String" MaxLength="200"/>
       </EntityType>
-      <EntityType Name="AdminSettings">
+      <EntityType Name="Bookstore">
         <Key>
           <PropertyRef Name="ID"/>
         </Key>
@@ -62,7 +62,7 @@
       <Annotations Target="MainService.Users/ID">
         <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
       </Annotations>
-      <Annotations Target="MainService.AdminSettings/ID">
+      <Annotations Target="MainService.Bookstore/ID">
         <Annotation Term="Core.ComputedDefaultValue" Bool="true"/>
       </Annotations>
       <Annotations Target="MainService.EntityContainer/AuditLogs">

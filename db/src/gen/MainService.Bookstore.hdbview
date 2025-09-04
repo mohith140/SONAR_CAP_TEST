@@ -1,4 +1,4 @@
-VIEW MainService_AdminSettings AS SELECT
+VIEW MainService_Bookstore AS SELECT
   Bookstore_0.ID,
   Bookstore_0.Title,
   Bookstore_0.Author,

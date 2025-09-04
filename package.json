@@ -65,6 +65,7 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "lint": "eslint . --ext .js,.ts"
+    "lint": "eslint . --ext .js,.ts",
+     "build": "mbt build"
   }
 }
