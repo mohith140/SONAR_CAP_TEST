@@ -1,0 +1,6 @@
+VIEW MainService_Users AS SELECT
+  Users_0.ID,
+  Users_0.username,
+  Users_0.email,
+  Users_0.password
+FROM DATA_Users AS Users_0

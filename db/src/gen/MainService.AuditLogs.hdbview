@@ -1,0 +1,7 @@
+VIEW MainService_AuditLogs AS SELECT
+  AuditLogs_0.ID,
+  AuditLogs_0.action,
+  AuditLogs_0.performedBy,
+  AuditLogs_0."TIMESTAMP",
+  AuditLogs_0.details
+FROM DATA_AuditLogs AS AuditLogs_0

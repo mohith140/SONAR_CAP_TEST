@@ -1,0 +1,240 @@
+{
+  "namespace": "DATA",
+  "definitions": {
+    "DATA.Users": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "username": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "email": {
+          "type": "cds.String",
+          "length": 200
+        },
+        "password": {
+          "type": "cds.String",
+          "length": 200
+        }
+      }
+    },
+    "DATA.Bookstore": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "Title": {
+          "type": "cds.String",
+          "length": 1200
+        },
+        "Author": {
+          "type": "cds.String",
+          "length": 80
+        },
+        "Genre": {
+          "type": "cds.String",
+          "length": 40
+        },
+        "Price": {
+          "type": "cds.Decimal",
+          "precision": 10,
+          "scale": 2
+        },
+        "InStock": {
+          "type": "cds.Boolean"
+        },
+        "Date1": {
+          "type": "cds.DateTime"
+        }
+      }
+    },
+    "DATA.AuditLogs": {
+      "kind": "entity",
+      "@readonly": true,
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "action": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "performedBy": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "timestamp": {
+          "type": "cds.Timestamp"
+        },
+        "details": {
+          "type": "cds.String",
+          "length": 500
+        }
+      }
+    },
+    "MainService": {
+      "@source": "service.cds",
+      "kind": "service"
+    },
+    "MainService.Users": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "DATA.Users"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "username": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "email": {
+          "type": "cds.String",
+          "length": 200
+        },
+        "password": {
+          "type": "cds.String",
+          "length": 200
+        }
+      }
+    },
+    "MainService.AdminSettings": {
+      "kind": "entity",
+      "projection": {
+        "from": {
+          "ref": [
+            "DATA.Bookstore"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "Title": {
+          "type": "cds.String",
+          "length": 1200
+        },
+        "Author": {
+          "type": "cds.String",
+          "length": 80
+        },
+        "Genre": {
+          "type": "cds.String",
+          "length": 40
+        },
+        "Price": {
+          "type": "cds.Decimal",
+          "precision": 10,
+          "scale": 2
+        },
+        "InStock": {
+          "type": "cds.Boolean"
+        },
+        "Date1": {
+          "type": "cds.DateTime"
+        }
+      }
+    },
+    "MainService.AuditLogs": {
+      "kind": "entity",
+      "@readonly": true,
+      "projection": {
+        "from": {
+          "ref": [
+            "DATA.AuditLogs"
+          ]
+        }
+      },
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "action": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "performedBy": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "timestamp": {
+          "type": "cds.Timestamp"
+        },
+        "details": {
+          "type": "cds.String",
+          "length": 500
+        }
+      }
+    },
+    "MainService.exposeToken": {
+      "kind": "action",
+      "returns": {
+        "type": "cds.String"
+      }
+    },
+    "cds.outbox.Messages": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "timestamp": {
+          "type": "cds.Timestamp"
+        },
+        "target": {
+          "type": "cds.String"
+        },
+        "msg": {
+          "type": "cds.LargeString"
+        },
+        "attempts": {
+          "type": "cds.Integer",
+          "default": {
+            "val": 0
+          }
+        },
+        "partition": {
+          "type": "cds.Integer",
+          "default": {
+            "val": 0
+          }
+        },
+        "lastError": {
+          "type": "cds.LargeString"
+        },
+        "lastAttemptTimestamp": {
+          "@cds.on.update": {
+            "=": "$now"
+          },
+          "type": "cds.Timestamp"
+        },
+        "status": {
+          "type": "cds.String",
+          "length": 23
+        }
+      }
+    }
+  },
+  "meta": {
+    "creator": "CDS Compiler v6.3.0",
+    "flavor": "inferred"
+  },
+  "$version": "2.0"
+}

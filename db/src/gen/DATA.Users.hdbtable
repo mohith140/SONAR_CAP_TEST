@@ -1,0 +1,7 @@
+COLUMN TABLE DATA_Users (
+  ID NVARCHAR(36) NOT NULL,
+  username NVARCHAR(100),
+  email NVARCHAR(200),
+  password NVARCHAR(200),
+  PRIMARY KEY(ID)
+)
