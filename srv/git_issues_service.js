@@ -115,7 +115,8 @@ srv.on("uploadFile", async (req) => {
 });
 
 // 17. Hardcoded Secrets in Code (CWE-798)
-srv.on("connectDB", async (req,res) => {\const client = new pg.Client({
+srv.on("connectDB", async (req,res) => {
+  const client = new pg.Client({
   user: "bob",
   host: "database.server.com",
   database: "mydb",
