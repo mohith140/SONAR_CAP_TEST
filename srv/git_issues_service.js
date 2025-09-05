@@ -5,7 +5,29 @@ var http = require("http");
 const url = require("url");
 const axios = require('axios');
 const crypto = require("crypto");
+const jsyaml = require("js-yaml");
+const session = require('express-session');
+app.use(session({
+    secret: 'keyboard cat'
+}));
 app.use(require('body-parser').urlencoded({ extended: false }))
+  const cookieParser = require("cookie-parser");
+ const bodyParser = require("body-parser");
+ const session = require("express-session");
+//csrf
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({ secret: process.env['SECRET'], cookie: { maxAge: 60000 } }));
+
+// ...
+
+app.post("/changeEmail", function(req, res) {
+  const userId = req.session.id;
+  const email = req.body["email"];
+  // ... update email associated with userId
+});
+//node modules exposure
+app.use('/node_modules', express.static(path.resolve(__dirname, '../node_modules')));
 module.exports =async function (srv) {
  const nodemailer = require("nodemailer");
  let url = 'http://example.org/auth';
@@ -56,17 +78,11 @@ srv.on("updateProfile", async (req) => {
   return result;
 });
 
-// 4. Authentication Bypass (CWE-287)
-srv.on("deleteUser", async (req) => {
-  // no authentication enforced
-  const result=cds.run(`DELETE FROM Users WHERE ID = ${req.data.user.id}`);
-  return result;
-});
 
-// 5. Broken Access Control (CWE-284)
+
+// 5.CleartextLogging (CWE-312)
 srv.on("getAllUsers", async (req) => {
-  // everyone can access all users
-  return cds.run(`SELECT * FROM Users`);
+console.info(`[INFO] Environment: ${JSON.stringify(process.env)}`);
 });
 
 // 6. Insecure Direct Object Reference (IDOR) (CWE-639)
@@ -77,23 +93,22 @@ srv.on("getInvoice", async (req) => {
 
 // 7. Insecure Deserialization (CWE-502)
 srv.on("deserializeData", async (req) => {
-  const { serialized } = req.data;
-  return JSON.parse(serialized); // untrusted JSON parsed directly
+ let data = jsyaml.load(req.params.data);
+ return data;
 });
 
-// 8. Command Injection (CWE-77)
-srv.on("runSystemCommand", async (req) => {
-  const { cmd } = req.data;
-  const { exec } = require("child_process");
-  exec(cmd, (err, stdout) => console.log(stdout)); // vulnerable
-  return "Executed";
+// 8. SensitiveGet (CWE-598)
+srv.on("runSystemCommand", async (req,res) => {
+
+    const user = req.query.user;
+    const password = req.query.password;
+    if (checkUser(user, password)) {
+        res.send('Welcome');
+    } else {
+        res.send('Access denied');
+    }
 });
 
-// 9. Sensitive Data Exposure (CWE-200)
-srv.on("debugUser", async (req) => {
-  const user = await cds.run(SELECT.one.from("Users").where({ ID: req.data.id }));
-  return user; // returns password, tokens, etc. without filtering
-});
 
 // 10. Security Misconfiguration (CWE-933)   ---(done)
 srv.on("openAdmin", async () => {
@@ -103,15 +118,15 @@ srv.on("openAdmin", async () => {
 
 // 11. Broken Session Management (CWE-384)
 srv.on("reuseSession", async (req) => {
-  req._.session.id = "jjhjhjhjjhbhgvgfvjbhgvgvgvhvghvhbh "; // predictable / reused session
-  return "Session reused";
+    if (req.body.username === 'admin' && req.body.password === 'admin') {
+        req.session.authenticated = true;
+        res.redirect('/');
+    } else {
+        res.redirect('/login');
+    }
 });
 
-// 12. Clickjacking (CWE-1021)
-srv.on("getPage", async () => {
-  // no X-Frame-Options header set
-  return "<html><body><h1>Important Page</h1></body></html>";
-});
+
 
 // 13. Insecure CORS Configuration (CWE-346)
 srv.on("openData", async (_, res) => {
