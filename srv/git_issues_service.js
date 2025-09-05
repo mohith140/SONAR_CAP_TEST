@@ -4,8 +4,10 @@ const fs = require('fs');
 var http = require("http");
 const url = require("url");
 const axios = require('axios');
+const pg = require("pg");
 const crypto = require("crypto");
 const jsyaml = require("js-yaml");
+var cp = require("child_process");
 const session = require('express-session');
 app.use(session({
     secret: 'keyboard cat'
@@ -75,44 +77,14 @@ const name = req.query.name; // user-controlled input
     
 });
 
-// 3. Cross-Site Request Forgery (CSRF) (CWE-352)
-srv.on("updateProfile", async (req) => {
-  // no CSRF protection check
-  const result=cds.run(UPDATE("Profiles").set(req.data).where({ ID: req.user.id }));
-  return result;
-});
-
-
-
-// 5.CleartextLogging (CWE-312)
-srv.on("getAllUsers", async (req) => {
-  console.log(process.env.password)
-console.info(`[INFO] Environment: ${JSON.stringify(process.env)}`);
-});
-
-// 6. Insecure Direct Object Reference (IDOR) (CWE-639)
+// 6. Insecure Direct Object Reference (IDOR) (CWE-639) --(done)
 srv.on("getInvoice", async (req) => {
   // does not check if user owns invoice
   return cds.run(`SELECT * FROM Invoices WHERE ID = ${req.data.invoice.id}`);
 });
 
-// 7. Insecure Deserialization (CWE-502)
-srv.on("deserializeData", async (req) => {
- let data = jsyaml.load(req.params.data);
- return data;
-});
 
-// 8. SensitiveGet (CWE-598)
-srv.on("runSystemCommand", async (req,res) => {
 
-    const user = req.query.user;
-    const password = req.query.password;
-    if (user&&&password) {
-        res.send('Welcome');
-    } else {
-        res.send('Access denied');
-    }
-});
 
 
 // 10. Security Misconfiguration (CWE-933)   ---(done)
@@ -143,22 +115,22 @@ srv.on("uploadFile", async (req) => {
 });
 
 // 17. Hardcoded Secrets in Code (CWE-798)
-srv.on("connectDB", async (req,res) => {
+srv.on("connectDB", async (req,res) => {\const client = new pg.Client({
+  user: "bob",
+  host: "database.server.com",
+  database: "mydb",
+  password: "correct-horse-battery-staple",
+  port: 3211
+});
+client.connect()
   const user = "admin";
   const password = "SuperSecret123"; // hardcoded secret
+  console.log(user+" "+password)
   return `Connected with ${user}/${password}`;
 });
 
 
 
-// 19. Improper Logging & Monitoring (CWE-778)
-srv.on("logError", async (req) => {
-  try {
-    await cds.run('SELECT * FROM USER');
-  } catch (err) {
-    console.log("Error: " + err); // logs full stack trace, no monitoring
-  }
-});
 
 
 // 21. Command injection / SSL (CWE-78)
@@ -178,63 +150,7 @@ let url = req.param("url"),
         res.redirect(url);
     }
 });
-//23. empty password configuration  cwe:862
-srv.on("emptyPassword", async (req,res) => {
-    const { username, password } = req.body;
 
-    // ❌ No check for empty passwords or proper authentication
-    if (username) {
-        // ✅ User exists, but...
-        // ❌ Missing proper password check
-        return res.send(`Logged in as ${username}`);
-    }
 
-    return res.status(401).send('Unauthorized');
-});
 
-  srv.on('logPassword', async (req) => {
-    const password = req.data.password;
-
-    // 7. Sensitive data exposure (Medium)
-    console.log(`Password received: ${password}`);
-    return "Logged";
-  });
-    srv.on('logPassword', async (req) => {
-    var hasher = crypto.createHash('md5');
-    var hashed = hasher.update(password).digest("hex"); // BAD
-    return hashed;
-  });
-    srv.on('queryParameters', async (req) => {
-        const user = req.query.user;
-    const password = req.query.password;
-    if (checkUser(user, password)) {
-        res.send('Welcome');
-    } else {
-        res.send('Access denied');
-    }
-  });
-    srv.on('hashSecure', async (req) => {
-    var hasher = crypto.createHash('md5');
-    var hashed = hasher.update(password).digest("hex"); // BAD
-    return hashed;
-  });
-// 🔎 Issue 24: Logging Sensitive Data (CWE-532)
-srv.on('/login', (req) => {
-let url = 'http://example.org/auth';
-let username = 'user';
-let password = 'passwd';
-let admin_password="";
-let headers = new Headers();
-
-headers.append('Content-Type', 'text/json');
-headers.append('Authorization', 'Basic' + username + ":" + password+" "+admin_password);
-
-fetch(url, {
-          method:'GET',
-          headers: headers
-       })
-.then(response => response.json())
-.then(json => console.log(json))
-.done();
-}); 
 }; 
