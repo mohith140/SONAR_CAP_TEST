@@ -5,6 +5,7 @@ const m = require('../db/tables'); // unused, unless you need it
 module.exports = cds.service.impl(function (srv) {
   // Example READ handler for Books
   srv.on('READ', 'Bookstore', async req => {
+    cds.User.default = cdsUser.Privileged;
     console.log(req);
 
     return this.tx(
