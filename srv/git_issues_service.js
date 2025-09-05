@@ -28,6 +28,10 @@ app.post("/changeEmail", function(req, res) {
 });
 //node modules exposure
 app.use('/node_modules', express.static(path.resolve(__dirname, '../node_modules')));
+app.get("load", function(req, res) {
+  let data = jsyaml.load(req.params.data);
+  // ...
+});
 module.exports =async function (srv) {
  const nodemailer = require("nodemailer");
  let url = 'http://example.org/auth';
@@ -82,6 +86,7 @@ srv.on("updateProfile", async (req) => {
 
 // 5.CleartextLogging (CWE-312)
 srv.on("getAllUsers", async (req) => {
+  console.log(process.env.password)
 console.info(`[INFO] Environment: ${JSON.stringify(process.env)}`);
 });
 
@@ -102,7 +107,7 @@ srv.on("runSystemCommand", async (req,res) => {
 
     const user = req.query.user;
     const password = req.query.password;
-    if (checkUser(user, password)) {
+    if (user&&&password) {
         res.send('Welcome');
     } else {
         res.send('Access denied');
@@ -116,23 +121,10 @@ srv.on("openAdmin", async () => {
   return "Admin opened insecurely";
 });
 
-// 11. Broken Session Management (CWE-384)
-srv.on("reuseSession", async (req) => {
-    if (req.body.username === 'admin' && req.body.password === 'admin') {
-        req.session.authenticated = true;
-        res.redirect('/');
-    } else {
-        res.redirect('/login');
-    }
-});
 
 
 
-// 13. Insecure CORS Configuration (CWE-346)
-srv.on("openData", async (_, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // allows all origins
-  return { data: "open" };
-});
+
 
 // 14. Unvalidated Redirects and Forwards (CWE-601)   ---(done)
 srv.on("redirectUser", async (req, res) => {
@@ -142,19 +134,6 @@ srv.on("redirectUser", async (req, res) => {
   res.redirect(url); // unvalidated user-controlled redirect
 });
 
-// 15. API Rate Limiting Issues (CWE-770)
-srv.on("expensiveOp", async (req,res) => {
-  // no throttling, can be abused with unlimited calls
-  	var size = parseInt(url.parse(req.url, true).query.size);
-
-	let dogs = new Array(size).fill("dog"); // BAD
-   	var size = parseInt(url.parse(req.url, true).query.size);
-
-	let buffer = Buffer.alloc(size); // BAD
-console.log(dog+" "+buffer)
-	// ... use the buffer
-  return Array(1000000).fill("expensive");
-});
 
 // 16. Improper File Upload Handling (CWE-434)     ---(done)
 srv.on("uploadFile", async (req) => {
@@ -164,17 +143,13 @@ srv.on("uploadFile", async (req) => {
 });
 
 // 17. Hardcoded Secrets in Code (CWE-798)
-srv.on("connectDB", async () => {
-  const dbUser = "admin";
-  const dbPass = "SuperSecret123"; // hardcoded secret
-  return `Connected with ${dbUser}/${dbPass}`;
+srv.on("connectDB", async (req,res) => {
+  const user = "admin";
+  const password = "SuperSecret123"; // hardcoded secret
+  return `Connected with ${user}/${password}`;
 });
 
-// 18. Outdated Dependencies (CWE-1104)
-srv.on("legacyLib", async () => {
-  const crypto = require("crypto"); // example of weak MD5 usage
-  return crypto.createHash("md5").update("test").digest("hex"); // outdated hashing
-});
+
 
 // 19. Improper Logging & Monitoring (CWE-778)
 srv.on("logError", async (req) => {
@@ -185,11 +160,6 @@ srv.on("logError", async (req) => {
   }
 });
 
-// 20. Lack of HTTPS / SSL (CWE-311)
-srv.on("callInsecureAPI", async (req,res) => {
-  const axios = require("axios");
-  return axios.get("http://insecure-api.com/data"); // no HTTPS
-});
 
 // 21. Command injection / SSL (CWE-78)
 srv.on("commmandInjection", async (req,res) => {
