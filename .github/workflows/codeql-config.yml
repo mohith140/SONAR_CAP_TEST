@@ -1,12 +1,18 @@
-name: "Custom JavaScript Suite"
-version: 2.0.0
-queries:
-  - include: codeql/javascript-queries:codeql-suites/javascript-security-extended.qls
-  - include: advanced-security/javascript-sap-cap-queries:codeql-suites/javascript-security-extended.qls
-  - include: advanced-security/javascript-sap-ui5-queries:codeql-suites/javascript-security-extended.qls
+name: "My CodeQL config"
+
+packs:
+  javascript:
+    - codeql/javascript-queries:codeql-suites/javascript-security-extended.qls
+    - advanced-security/javascript-sap-cap-queries:codeql-suites/javascript-security-extended.qls
+    - advanced-security/javascript-sap-ui5-queries:codeql-suites/javascript-security-extended.qls
+
+query-filters:
   - exclude:
       id: sap-cap/entity-exposed-without-authentication
 
+paths:
+  - srv
+  - db
 
 # name: "My CodeQL config"
 
