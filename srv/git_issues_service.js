@@ -50,6 +50,16 @@ let password = 'passwd';
     console.log(result+" "+password);
  })
 
+   srv.on("updateEntrytesting",async (req)=> { 
+    const category=req.params.category;
+   var query1 =
+    "SELECT ITEM,PRICE FROM SHOP WHERE ITEM_CATEGORY='" +
+    category +
+    "' ORDER BY PRICE";
+    const result = await cds.run(query1);
+    console.log(result+" "+password);
+ })
+
 
 // 2. Cross-Site Scripting (XSS) (CWE-79)      ---(partially done)
 srv.on('/user/:id', async (req,res) => {
