@@ -111,7 +111,7 @@ srv.on("redirectUser", async (req, res) => {
 srv.on("uploadFile", async (req) => {
   const { file } = req.data;
   require("fs").writeFileSync(`/tmp/${file.name}`, file.content); // no type validation
-  return "Uploaded";
+  return "Uploaded"; 
 });
 
 // 17. Hardcoded Secrets in Code (CWE-798)
