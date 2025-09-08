@@ -1,0 +1,43 @@
+name: "Deploy CAP to CF Trial"
+
+on:
+  workflow_dispatch:    # manual trigger
+  push:
+    branches:
+      - main            # deploy only when pushing to main
+
+jobs:
+  deploy-to-cf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install CAP CLI
+        run: npm install -g @sap/cds-dk
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CAP project
+        run: npx cds build
+
+      - name: Install Cloud Foundry CLI
+        run: |
+          curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary" | tar -zx
+          sudo mv cf /usr/local/bin
+
+      - name: Login to CF Trial
+        run: |
+          cf api https://api.cf.us10-001.hana.ondemand.com   # Adjust region if needed
+          cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
+          cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}"
+
+      - name: Deploy to CF
+        run: cf push
