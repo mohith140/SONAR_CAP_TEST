@@ -30,12 +30,14 @@ jobs:
 
       - name: Install Cloud Foundry CLI
         run: |
-          curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary" | tar -zx
-          sudo mv cf /usr/local/bin
+          curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary" -o cf-cli.tgz
+          tar -xvzf cf-cli.tgz
+          sudo mv cf /usr/local/bin/cf
+          cf --version
 
       - name: Login to CF Trial
         run: |
-          cf api https://api.cf.us10-001.hana.ondemand.com   # Adjust region if needed
+          cf api https://api.cf.us10-001.hana.ondemand.com
           cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
           cf target -o "d64a0ce1trial" -s "dev"
 
