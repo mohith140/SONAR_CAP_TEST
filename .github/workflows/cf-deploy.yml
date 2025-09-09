@@ -32,8 +32,9 @@ jobs:
         run: |
           curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary" -o cf-cli.tgz
           tar -xvzf cf-cli.tgz
-          sudo mv cf /usr/local/bin/cf
+          sudo mv cf8 /usr/local/bin/cf
           cf --version
+
 
       - name: Login to CF Trial
         run: |
