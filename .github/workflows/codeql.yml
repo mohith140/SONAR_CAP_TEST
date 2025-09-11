@@ -31,26 +31,25 @@ jobs:
       run: npm ci
 
     - name: Compile CDS files
-      run: npx cds compile srv db --to json -o gen/cap-cds-model.json
-
-    - name: Upload CDS model
-      uses: actions/upload-artifact@v4
-      with:
-        name: cap-cds-model
-        path: gen/cap-cds-model.json
-
+      run: |
+        npm install -g @sap/cds-dk
+        for cds_file in $(find . -type f \( -iname '*.cds' \) -print)
+          do
+            cds compile $cds_file \
+              -2 json \
+              -o "$cds_file.json" \
+              --locations
+          done
+      
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        config-file: .github/workflows/codeql-config.yml
         languages: javascript
-    - name: Build project
-      run: |
-        npm run build || echo "No build script, skipping"
-        npx cds build
+        config-file: .github/codeql/codeql-config.yaml
+
     - name: Perform CodeQL Analysis
       id: analyze
       uses: github/codeql-action/analyze@v3
       env:
         LGTM_INDEX_XML_MODE: all
-        LGTM_INDEX_FILETYPES: ".json:JSON"
+        LGTM_INDEX_FILETYPES: ".json:JSON\n.cds:JSON"
