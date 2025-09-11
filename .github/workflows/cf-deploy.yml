@@ -40,7 +40,7 @@ jobs:
         run: |
           cf api https://api.cf.us10-001.hana.ondemand.com
           cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
-          cf target -o "d64a0ce1trial" -s "dev"
+          cf target -o "d64a0ce1tral" -s "dev"
 
       - name: Deploy to CF
         run: cf push
