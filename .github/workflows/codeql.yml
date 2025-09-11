@@ -1,55 +1,56 @@
-name: "CodeQL for CAP"
+name: "CodeQL SAP + JavaScript Analysis"
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  schedule:
-    - cron: '0 0 * * 0'
 
 jobs:
-  analyze-javascript:
-    name: Analyze
+  analyze:
+    name: Analyze code with CodeQL
     runs-on: ubuntu-latest
     permissions:
+      actions: read
+      contents: read
       security-events: write
 
+    strategy:
+      matrix:
+        language: [ 'javascript' ]
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20   # LTS and CAP supported
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'    # or whatever version you use
 
-    - name: Install CAP CLI
-      run: npm install -g @sap/cds
+      - name: Install SAP CDS Toolkit
+        run: |
+          npm install -g @sap/cds-dk
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Compile CDS files
-      run: |
-        npm install -g @sap/cds-dk
-        for cds_file in $(find . -type f \( -iname '*.cds' \) -print)
-          do
-            cds compile $cds_file \
-              -2 json \
-              -o "$cds_file.json" \
-              --locations
+      - name: Compile CDS files to JSON
+        run: |
+          # find all .cds files and convert
+          for cds_file in $(find . -type f -iname '*.cds' -print); do
+            cds compile "$cds_file" -2 json -o "${cds_file}.json" --locations
           done
-      
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: javascript
-        config-file: .github/workflows/codeql-config.yml
 
-    - name: Perform CodeQL Analysis
-      id: analyze
-      uses: github/codeql-action/analyze@v3
-      env:
-        LGTM_INDEX_XML_MODE: all
-        LGTM_INDEX_FILETYPES: ".json:JSON\n.cds:JSON"
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          # specify languages you want to analyze
+          languages: ${{ matrix.language }}
+          config-file: .github/workflows/codeql-config.yml
+
+      - name: Perform CodeQL analysis
+        id: analyze
+        uses: github/codeql-action/analyze@v3
+        env:
+          # include .cds and .json so that the generated JSON from CDS compile is indexed
+          LGTM_INDEX_XML_MODE: all
+          LGTM_INDEX_FILETYPES: ".json:JSON\n.cds:JSON"
+
